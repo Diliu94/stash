@@ -1,29 +1,16 @@
-import Handy from "thehandy";
-import {
-  HandyMode,
-  HsspSetupResult,
-  CsvUploadResponse,
-  HandyFirmwareStatus,
-} from "thehandy/lib/types";
-import {
-  ButtplugClient,
-  ButtplugClientDevice,
-  ButtplugBrowserWebsocketClientConnector
-} from "buttplug";
-
-interface IFunscript {
+export interface IFunscript {
   actions: Array<IAction>;
   inverted: boolean;
   range: number;
 }
 
-interface IAction {
+export interface IAction {
   at: number;
   pos: number;
 }
 
 // Utility function to convert one range of values to another
-function convertRange(
+export function convertRange(
   value: number,
   fromLow: number,
   fromHigh: number,
@@ -36,7 +23,7 @@ function convertRange(
 // Converting to CSV first instead of uploading Funscripts is required
 // Reference for Funscript format:
 // https://pkg.go.dev/github.com/funjack/launchcontrol/protocol/funscript
-function convertFunscriptToCSV(funscript: IFunscript) {
+export function convertFunscriptToCSV(funscript: IFunscript) {
   const lineTerminator = "\r\n";
   if (funscript?.actions?.length > 0) {
     return funscript.actions.reduce((prev: string, curr: IAction) => {
@@ -57,42 +44,6 @@ function convertFunscriptToCSV(funscript: IFunscript) {
     }, `#Created by stash.app ${new Date().toUTCString()}\n`);
   }
   throw new Error("Not a valid funscript");
-}
-
-// copied from https://github.com/defucilis/thehandy/blob/main/src/HandyUtils.ts
-// since HandyUtils is not exported.
-// License is listed as MIT. No copyright notice is provided in original.
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-async function uploadCsv(
-  csv: File,
-  filename?: string
-): Promise<CsvUploadResponse> {
-  const url = "https://www.handyfeeling.com/api/sync/upload?local=true";
-  if (!filename) filename = "script_" + new Date().valueOf() + ".csv";
-  const formData = new FormData();
-  formData.append("syncFile", csv, filename);
-  const response = await fetch(url, {
-    method: "post",
-    body: formData,
-  });
-  const newUrl = await response.json();
-  return newUrl;
 }
 
 export interface IInteractive {
